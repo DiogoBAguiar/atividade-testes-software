@@ -1,0 +1,35 @@
+sequenceDiagram
+    autonumber
+    actor ATT as Atacante / suite OWASP ZAP
+
+    box rgb(219,234,254) Superficie real
+        participant GW as ApiGateway
+        participant JWT as TokenJwtValidator
+        participant CAT as CatalogService
+        participant WAF as WafRules
+    end
+
+    box rgb(254,226,226) Injecoes de ataque
+        participant EXP as JwtExpirado
+        participant TAM as JwtManipulado
+        participant SQLi as Payload busca
+    end
+
+    ATT->>EXP: token com exp no passado
+    EXP->>GW: GET /catalog/continue-watching
+    GW->>JWT: validate(token)
+    JWT-->>GW: TokenExpiredException
+    GW-->>ATT: HTTP 401
+
+    ATT->>TAM: altera role para admin sem reassinatura
+    TAM->>GW: GET /admin/catalog/ingest
+    GW->>JWT: validate(token)
+    JWT-->>GW: InvalidSignatureException
+    GW-->>ATT: HTTP 401
+
+    ATT->>SQLi: q = "' OR 1=1 --"
+    SQLi->>GW: GET /catalog/search?q=...
+    GW->>WAF: inspect(query)
+    WAF-->>GW: bloqueio ou sanitizacao
+    GW->>CAT: search(sanitized)
+    CAT-->>ATT: lista vazia ou 400 - sem dump do catalogo

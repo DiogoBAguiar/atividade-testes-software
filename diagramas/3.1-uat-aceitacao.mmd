@@ -1,0 +1,31 @@
+sequenceDiagram
+    autonumber
+    actor PO as Product Owner
+    actor U as Assinante titular
+
+    box rgb(219,234,254) Modulos reais do dominio de assinatura
+        participant APP as App StreamPulse
+        participant BILL as BillingService
+        participant AUTH as AuthService
+        participant PLAY as PlaybackOrchestrator
+    end
+
+    box rgb(220,252,231) Criterio de negocio / oraculo UAT
+        participant AC as Criterio de aceitacao BDD
+    end
+
+    Note over AC: Dado assinatura anual ativa no dia 100/365<br/>Quando o titular confirma cancelamento com reembolso<br/>Entao cobranca futura cessa e pro-rata e creditado
+
+    PO->>U: apresenta historia US-BILL-14
+    U->>APP: solicitarCancelamento(motivo, reembolso=true)
+    APP->>AUTH: authorize(jwt, acao=CANCEL_OWN_SUB)
+    AUTH-->>APP: AuthorizationGranted
+    APP->>BILL: cancelWithProrata(subscriptionId, now)
+    BILL->>BILL: diasNaoUsados = 365 - 100
+    BILL->>BILL: credito = round(precoAnual * 265/365, HALF_EVEN)
+    BILL-->>APP: CancelReceipt(status=CANCELED, credito)
+    APP->>PLAY: revokeFutureSessions(userId)
+    PLAY-->>APP: sessoes futuras impedidas
+    APP-->>U: comprovante e saldo
+    U->>AC: evidencia: status CANCELED, credito, login ainda valido ate o fim do dia
+    PO->>AC: aceite ou rejeicao da historia

@@ -1,0 +1,40 @@
+flowchart LR
+    subgraph Ator["Ator / ambiente CI"]
+        DEV["Commit no Git"]
+        GHA["GitHub Actions\njob smoke"]
+    end
+
+    subgraph Driver["Driver de fumaca"]
+        SM["SmokeSuite\npytest -m smoke --maxfail=1"]
+    end
+
+    subgraph Reais["Rotas vitais do build - modulos reais"]
+        L["POST /auth/login"]
+        M["GET /playback/{id}/master.m3u8"]
+        H["GET /health"]
+    end
+
+    subgraph Ambiente["Ambiente efemero do pipeline"]
+        API["ApiGateway + Compose"]
+        DB[("Metadata de homologacao")]
+    end
+
+    subgraph Decisao["Portao de qualidade"]
+        OK["Build verde - segue testes profundos"]
+        KO["Build vermelho - pipeline aborta"]
+    end
+
+    DEV --> GHA --> SM
+    SM --> L
+    SM --> M
+    SM --> H
+    L --> API
+    M --> API
+    H --> API
+    API --> DB
+    L -->|HTTP 200 + JWT| OK
+    M -->|HTTP 200 + EXT-X-STREAM-INF| OK
+    H -->|HTTP 200| OK
+    L -->|5xx / timeout / 401 inesperado| KO
+    M -->|404 / 5xx / manifesto vazio| KO
+    H -->|nao-200| KO

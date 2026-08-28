@@ -1,0 +1,42 @@
+flowchart TB
+    subgraph Atores["Atores internos - Teste Alfa"]
+        ENG["Engenheiros de client e backend"]
+        CS["Atendimento e Product"]
+        QA["QA interno"]
+    end
+
+    subgraph Ambiente["Ambiente controlado de homologacao"]
+        STG["Staging StreamPulse"]
+        WP["Modulo Watch Party"]
+        SIG["WatchPartySignaling"]
+        CAT["CatalogService"]
+        AUTH["AuthService"]
+        LOG["Log centralizado"]
+    end
+
+    subgraph Sessoes["Sessoes Alfa instrumentadas"]
+        H1["Anfitriao cria sala privada"]
+        H2["Convidado entra com codigo"]
+        H3["Sync de play/pause/seek"]
+        H4["Chat e reacao"]
+        H5["Saida e encerramento da sala"]
+    end
+
+    subgraph Evidencia["Evidencia de validacao"]
+        BUG["Tickets de usabilidade e defeito"]
+        OK["Go / No-go para Beta"]
+    end
+
+    ENG --> STG
+    CS --> STG
+    QA --> STG
+    STG --> WP
+    WP --> SIG
+    WP --> CAT
+    WP --> AUTH
+    WP --> LOG
+    QA --> H1 --> H2 --> H3 --> H4 --> H5
+    H3 --> BUG
+    H4 --> BUG
+    H5 --> OK
+    LOG --> BUG

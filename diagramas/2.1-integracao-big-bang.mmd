@@ -1,0 +1,47 @@
+flowchart TB
+    subgraph Ator["Ator"]
+        QA["Engenheiro de QA"]
+    end
+
+    subgraph Driver["Driver de integracao nao incremental"]
+        H["BigBangTestHarness\nstartE2EPlayback(user, asset)"]
+    end
+
+    subgraph Reais["Modulos reais acoplados simultaneamente"]
+        A["AuthService\nvalidateSession(jwt)"]
+        C["CatalogService\ngetTitle(assetId)"]
+        P["PlayerStreamer\nopenManifest(assetId)"]
+        B["BillingService\nassertEntitlement(userId, assetId)"]
+    end
+
+    subgraph Ambiente["Ambiente de integracao"]
+        DB[("MetadataCluster")]
+        MQ["EventBus"]
+        CDN["CdnOrigin"]
+    end
+
+    subgraph Sintoma["Falha observavel sem causa-raiz isolada"]
+        F["HTTP 500 / timeout / entitlement negado"]
+    end
+
+    QA --> H
+    H --> A
+    H --> C
+    H --> P
+    H --> B
+    A --- C
+    A --- B
+    C --- P
+    B --- P
+    P --- CDN
+    A --> DB
+    C --> DB
+    B --> MQ
+    P --> MQ
+    A -.-> F
+    C -.-> F
+    P -.-> F
+    B -.-> F
+    DB -.-> F
+    MQ -.-> F
+    CDN -.-> F

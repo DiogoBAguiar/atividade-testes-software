@@ -1,0 +1,40 @@
+flowchart TB
+    subgraph Atores["Atores externos - Teste Beta"]
+        U1["Usuarios finais reais n=1000"]
+    end
+
+    subgraph Dispositivos["Ambiente nao controlado do usuario"]
+        AND["Android"]
+        IOS["iOS"]
+        TV["Smart TVs"]
+    end
+
+    subgraph Build["Distribuicao controlada"]
+        STORE["Tracks Experimentais\nPlay Internal / TestFlight / firmware beta"]
+        APP["App StreamPulse 2.4.0-beta"]
+    end
+
+    subgraph Reais["Backend de producao restrita"]
+        API["ApiGateway canario 5%"]
+        WP["Watch Party + Playback"]
+        TEL["Pipeline de telemetria"]
+    end
+
+    subgraph Observabilidade["Coleta de falhas de campo"]
+        CRASH["Crashlytics / Sentry"]
+        QoE["QoE: rebuffering, startup, erros DRM"]
+        FB["Feedback in-app"]
+    end
+
+    U1 --> AND
+    U1 --> IOS
+    U1 --> TV
+    STORE --> APP
+    AND --> APP
+    IOS --> APP
+    TV --> APP
+    APP --> API --> WP
+    APP --> TEL
+    TEL --> CRASH
+    TEL --> QoE
+    APP --> FB

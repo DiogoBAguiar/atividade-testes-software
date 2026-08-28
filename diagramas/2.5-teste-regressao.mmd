@@ -1,0 +1,32 @@
+flowchart TB
+    subgraph Mudanca["Alteracao sob teste"]
+        REF["Refatoracao de AdaptiveBitrateController.chooseLadder()"]
+    end
+
+    subgraph Driver["Driver da suite de regressao"]
+        RG["RegressionSuite\npytest -m regression"]
+    end
+
+    subgraph Reais["Modulos reais potencialmente colaterais"]
+        ABR["AdaptiveBitrateController"]
+        DRM["DrmLicenseService.issueLicense(kid, jwt)"]
+        BILL["BillingService.accountPlaybackSecond(userId, bitrate)"]
+        PLAY["PlayerStreamer.pumpBuffer()"]
+    end
+
+    subgraph Baseline["Oraculo de nao-regressao"]
+        GOLD["Golden files: ladder.json, drm.kid, billing.csv"]
+    end
+
+    REF --> ABR
+    RG --> ABR
+    RG --> DRM
+    RG --> BILL
+    RG --> PLAY
+    ABR --> PLAY
+    PLAY --> DRM
+    PLAY --> BILL
+    RG --> GOLD
+    DRM -->|licenca e KID inalterados| GOLD
+    BILL -->|segundos faturados inalterados| GOLD
+    ABR -->|ladder equivalente para o mesmo RTT| GOLD

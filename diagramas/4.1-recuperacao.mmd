@@ -1,0 +1,37 @@
+sequenceDiagram
+    autonumber
+    actor QA as Engenheiro de SRE/QA
+
+    box rgb(219,234,254) Streaming ativo - modulos reais
+        participant PL as PlayerStreamer
+        participant OR as PlaybackOrchestrator
+        participant SES as SessionStore
+    end
+
+    box rgb(254,226,226) Injecao de falha
+        participant INJ as FaultInjector
+    end
+
+    box rgb(229,231,235) Infraestrutura Redis
+        participant RP as RedisPrimary
+        participant RS as RedisReplica
+        participant SENT as RedisSentinel
+    end
+
+    QA->>PL: reproduzir titulo com sessao sticky
+    PL->>OR: heartbeat(positionMs=184000, bitrate)
+    OR->>SES: saveCheckpoint(sessionId, positionMs)
+    SES->>RP: SET session:{id}
+
+    QA->>INJ: crash forçado do no primario
+    INJ->>RP: kill -9 redis-server
+    RP--x SES: conexao resetada
+
+    SES->>SENT: descobrir novo master
+    SENT->>RS: promover replica
+    RS-->>SENT: replica promovida
+    SES->>RS: GET session:{id}
+    RS-->>SES: checkpoint 184000
+    SES-->>OR: SessionState restaurado
+    OR-->>PL: resumeFrom(positionMs=184000)
+    PL-->>QA: playback continua sem voltar ao inicio

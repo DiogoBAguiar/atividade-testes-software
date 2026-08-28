@@ -1,0 +1,29 @@
+flowchart TB
+    subgraph Carga["Gerador de estresse"]
+        K6["k6 / Gatling\n500.000 VU na estreia ao vivo"]
+    end
+
+    subgraph Ambiente["Ambiente de sistema"]
+        GW["ApiGateway"]
+        CB["CircuitBreaker Playback"]
+        TH["Throttling / rate limiter"]
+        PLAY["PlaybackOrchestrator"]
+        CDN["CdnEdge"]
+        Q["Fila de degradacao"]
+    end
+
+    subgraph Estados["Degradacao graciosa versus colapso"]
+        N["Closed - trafego nominal 100k req/s"]
+        H["Open - rejeicao rapida HTTP 429/503"]
+        F["Fallback - trailer em 480p / fila de espera"]
+        X["Falha catastrofica - deadlock / OOM"]
+    end
+
+    K6 --> GW --> TH --> CB --> PLAY --> CDN
+    CB --> N
+    CB -->|erro acima do limiar| H
+    H --> F
+    TH --> Q
+    Q --> F
+    PLAY -.-> X
+    CDN -.-> X

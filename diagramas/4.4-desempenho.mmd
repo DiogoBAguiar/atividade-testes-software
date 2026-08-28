@@ -1,0 +1,26 @@
+flowchart LR
+    subgraph Carga["Perfil operacional estavel"]
+        GEN["Gerador de carga sustentada\n80% da capacidade nominal"]
+    end
+
+    subgraph SUT["Sistema real sob medicao"]
+        GW["ApiGateway"]
+        MAN["Servico de manifesto"]
+        CDN["Entrega de chunks"]
+    end
+
+    subgraph Metricas["SLO de desempenho"]
+        P95["p95 latencia HTTP menor que 200ms"]
+        P99["p99 latencia HTTP menor que 200ms"]
+        TP["Throughput de chunks >= 4000 obj/s por PoP"]
+        ERR["taxa de erro menor que 0,1%"]
+    end
+
+    GEN --> GW --> MAN
+    GEN --> CDN
+    GW --> P95
+    GW --> P99
+    MAN --> P95
+    CDN --> TP
+    GW --> ERR
+    CDN --> ERR
