@@ -1,0 +1,27 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class AdaptiveBitrateController {
+  + chooseLadder(rttMs: int, throughputBps: long, bufferMs: int): Rung
+}
+
+class DrmLicenseService <<service>> {
+  + issueLicense(kid: String, jwt: String): License
+}
+
+class BillingService <<service>> {
+  + accountPlaybackSecond(userId: String, bitrate: int): void
+}
+
+class RegressionSuite <<Driver>> {
+  + test_ladder_compativel_com_baseline(): void
+  + test_drm_kid_inalterado(): void
+  + test_faturamento_inalterado(): void
+}
+
+RegressionSuite --> AdaptiveBitrateController : reexecuta
+RegressionSuite --> DrmLicenseService : reexecuta
+RegressionSuite --> BillingService : reexecuta
+AdaptiveBitrateController ..> DrmLicenseService : efeito colateral
+AdaptiveBitrateController ..> BillingService : efeito colateral
+@enduml

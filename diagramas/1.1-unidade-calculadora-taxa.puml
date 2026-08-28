@@ -1,0 +1,26 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class CalculadoraTaxaTranscodificacao {
+  - FATOR_LIVE: Decimal
+  - MIN_BITRATE_KBPS: int
+  - MAX_BITRATE_KBPS: int
+  + calcularCusto(perfil: PerfilTranscodificacao, duracaoSegundos: int, prioridade: String): Decimal
+  + validarPerfil(perfil: PerfilTranscodificacao): void
+}
+
+class PerfilTranscodificacao {
+  + codec: String
+  + bitrateKbps: int
+  + hdr: boolean
+}
+
+class TestCalculadoraTaxaTranscodificacao <<Driver de Unidade>> {
+  + test_duracao_zero_lanca_excecao(): void
+  + test_bitrate_limite_maximo(): void
+  + test_prioridade_live_aplica_fator(): void
+}
+
+TestCalculadoraTaxaTranscodificacao --> CalculadoraTaxaTranscodificacao : exercita
+CalculadoraTaxaTranscodificacao --> PerfilTranscodificacao : usa
+@enduml

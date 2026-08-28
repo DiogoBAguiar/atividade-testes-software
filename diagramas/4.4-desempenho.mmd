@@ -1,26 +1,24 @@
-flowchart LR
-    subgraph Carga["Perfil operacional estavel"]
-        GEN["Gerador de carga sustentada\n80% da capacidade nominal"]
-    end
+classDiagram
+    class GeradorCargaEstavel {
+        <<Driver de Carga>>
+        +executarPerfilNominal() void
+    }
 
-    subgraph SUT["Sistema real sob medicao"]
-        GW["ApiGateway"]
-        MAN["Servico de manifesto"]
-        CDN["Entrega de chunks"]
-    end
+    class ApiGateway {
+        <<service>>
+        +obterManifesto(assetId) String
+    }
 
-    subgraph Metricas["SLO de desempenho"]
-        P95["p95 latencia HTTP menor que 200ms"]
-        P99["p99 latencia HTTP menor que 200ms"]
-        TP["Throughput de chunks >= 4000 obj/s por PoP"]
-        ERR["taxa de erro menor que 0,1%"]
-    end
+    class ServicoManifesto {
+        <<service>>
+        +montarMasterM3u8(assetId) String
+    }
 
-    GEN --> GW --> MAN
-    GEN --> CDN
-    GW --> P95
-    GW --> P99
-    MAN --> P95
-    CDN --> TP
-    GW --> ERR
-    CDN --> ERR
+    class CdnEntregaChunks {
+        <<service>>
+        +entregarChunk(url) byte[]
+    }
+
+    GeradorCargaEstavel --> ApiGateway : 80 por cento da capacidade
+    ApiGateway --> ServicoManifesto : p95 p99
+    GeradorCargaEstavel --> CdnEntregaChunks : vazao de chunks

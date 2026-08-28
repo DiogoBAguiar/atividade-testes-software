@@ -1,59 +1,24 @@
 classDiagram
-    direction TB
-
-    class TestCalculadoraTaxaTranscodificacao {
-        <<driver de unidade>>
-        +test_duracao_zero_lanca_ValueError() void
-        +test_duracao_negativa_lanca_ValueError() void
-        +test_duracao_um_segundo_custo_minimo() void
-        +test_bitrate_limite_inferior_100() void
-        +test_bitrate_abaixo_minimo_99_lanca_erro() void
-        +test_bitrate_igual_MAX_50000() void
-        +test_bitrate_MAX_mais_um_lanca_PerfilInvalidoError() void
-        +test_prioridade_LIVE_aplica_fator_1_8() void
-        +test_hdr_true_aplica_sobretaxa_1_25() void
-        +test_arredondamento_half_even_centavos() void
-    }
-
     class CalculadoraTaxaTranscodificacao {
-        <<SUT / modulo real>>
-        -TABELA_PRECOS : Map
-        -MAX_BITRATE_KBPS : int
-        -MIN_BITRATE_KBPS : int
-        -FATOR_LIVE : Decimal
-        -FATOR_HDR : Decimal
-        +calcularCusto(perfil: PerfilTranscodificacao, duracaoSegundos: int, prioridade: PrioridadeFila) Decimal
-        +validarPerfil(perfil: PerfilTranscodificacao) void
-        -aplicarFatorPrioridade(custoBase: Decimal, prioridade: PrioridadeFila) Decimal
-        -arredondarCentavos(valor: Decimal) Decimal
+        -Decimal FATOR_LIVE
+        -int MIN_BITRATE_KBPS
+        -int MAX_BITRATE_KBPS
+        +calcularCusto(perfil, duracaoSegundos, prioridade) Decimal
+        +validarPerfil(perfil) void
     }
 
     class PerfilTranscodificacao {
-        +codec : String
-        +resolucao : String
-        +bitrateKbps : int
-        +hdr : boolean
-        +canaisAudio : int
+        +String codec
+        +int bitrateKbps
+        +boolean hdr
     }
 
-    class PrioridadeFila {
-        <<enumeration>>
-        BATCH
-        STANDARD
-        LIVE
-        EMERGENCIA
+    class TestCalculadoraTaxaTranscodificacao {
+        <<Driver de Unidade>>
+        +test_duracao_zero_lanca_excecao() void
+        +test_bitrate_limite_maximo() void
+        +test_prioridade_live_aplica_fator() void
     }
 
-    class PerfilInvalidoError {
-        <<exception>>
-        +codigo : String
-        +mensagem : String
-    }
-
-    note for TestCalculadoraTaxaTranscodificacao "Sem stubs e sem I/O.\nIsolamento total do SUT."
-    note for CalculadoraTaxaTranscodificacao "Microsservico de Transcodificacao.\nRegra de precificacao atomica."
-
-    TestCalculadoraTaxaTranscodificacao --> CalculadoraTaxaTranscodificacao : instancia e exerce
-    CalculadoraTaxaTranscodificacao ..> PerfilTranscodificacao : usa
-    CalculadoraTaxaTranscodificacao ..> PrioridadeFila : usa
-    CalculadoraTaxaTranscodificacao ..> PerfilInvalidoError : lanca
+    TestCalculadoraTaxaTranscodificacao --> CalculadoraTaxaTranscodificacao : exercita
+    CalculadoraTaxaTranscodificacao --> PerfilTranscodificacao : usa

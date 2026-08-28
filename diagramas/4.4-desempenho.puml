@@ -1,0 +1,23 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class GeradorCargaEstavel <<Driver de Carga>> {
+  + executarPerfilNominal(): void
+}
+
+class ApiGateway <<service>> {
+  + obterManifesto(assetId: String): String
+}
+
+class ServicoManifesto <<service>> {
+  + montarMasterM3u8(assetId: String): String
+}
+
+class CdnEntregaChunks <<service>> {
+  + entregarChunk(url: String): byte[]
+}
+
+GeradorCargaEstavel --> ApiGateway : 80% da capacidade
+ApiGateway --> ServicoManifesto : p95 / p99
+GeradorCargaEstavel --> CdnEntregaChunks : vazao de chunks
+@enduml

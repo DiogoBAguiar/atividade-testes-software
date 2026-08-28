@@ -1,0 +1,26 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class EngenheiroInterno <<ator>> {
+  + executarSessaoWatchParty(): void
+}
+
+class WatchPartyService <<service>> {
+  + criarSala(hostId: String, assetId: String): Room
+  + entrarComCodigo(codigo: String): void
+  + syncPlayhead(roomId: String, positionMs: long): void
+}
+
+class WatchPartySignaling <<service>> {
+  + enviarEvento(roomId: String, evento: Evento): void
+}
+
+class AmbienteHomologacao <<ambiente>> {
+  + catalogo: CatalogService
+  + auth: AuthService
+}
+
+EngenheiroInterno --> WatchPartyService : usa em staging
+WatchPartyService --> WatchPartySignaling : utiliza
+WatchPartyService --> AmbienteHomologacao : executa em
+@enduml

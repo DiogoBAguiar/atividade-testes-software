@@ -1,47 +1,34 @@
-flowchart TB
-    subgraph Ator["Ator"]
-        QA["Engenheiro de QA"]
-    end
+classDiagram
+    class BigBangHarness {
+        <<Driver>>
+        +startE2EPlayback(userId, assetId) void
+    }
 
-    subgraph Driver["Driver de integracao nao incremental"]
-        H["BigBangTestHarness\nstartE2EPlayback(user, asset)"]
-    end
+    class AuthService {
+        <<service>>
+        +validateSession(jwt) Boolean
+    }
 
-    subgraph Reais["Modulos reais acoplados simultaneamente"]
-        A["AuthService\nvalidateSession(jwt)"]
-        C["CatalogService\ngetTitle(assetId)"]
-        P["PlayerStreamer\nopenManifest(assetId)"]
-        B["BillingService\nassertEntitlement(userId, assetId)"]
-    end
+    class CatalogService {
+        <<service>>
+        +getTitle(assetId) Title
+    }
 
-    subgraph Ambiente["Ambiente de integracao"]
-        DB[("MetadataCluster")]
-        MQ["EventBus"]
-        CDN["CdnOrigin"]
-    end
+    class PlayerStreamer {
+        <<service>>
+        +openManifest(assetId) String
+    }
 
-    subgraph Sintoma["Falha observavel sem causa-raiz isolada"]
-        F["HTTP 500 / timeout / entitlement negado"]
-    end
+    class BillingService {
+        <<service>>
+        +assertEntitlement(userId, assetId) Boolean
+    }
 
-    QA --> H
-    H --> A
-    H --> C
-    H --> P
-    H --> B
-    A --- C
-    A --- B
-    C --- P
-    B --- P
-    P --- CDN
-    A --> DB
-    C --> DB
-    B --> MQ
-    P --> MQ
-    A -.-> F
-    C -.-> F
-    P -.-> F
-    B -.-> F
-    DB -.-> F
-    MQ -.-> F
-    CDN -.-> F
+    BigBangHarness --> AuthService : instancia
+    BigBangHarness --> CatalogService : instancia
+    BigBangHarness --> PlayerStreamer : instancia
+    BigBangHarness --> BillingService : instancia
+    PlayerStreamer --> AuthService : usa
+    PlayerStreamer --> CatalogService : usa
+    PlayerStreamer --> BillingService : usa
+    AuthService --> BillingService : usa

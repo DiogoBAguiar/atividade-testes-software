@@ -1,0 +1,15 @@
+@startuml
+actor Assinante
+actor ProductOwner
+participant AppStreamPulse
+participant AuthService
+participant BillingService
+
+Assinante -> AppStreamPulse : solicitarCancelamento(reembolso=true)
+AppStreamPulse -> AuthService : authorize(jwt, CANCEL_OWN_SUB)
+AuthService --> AppStreamPulse : AuthorizationGranted
+AppStreamPulse -> BillingService : cancelWithProrata(subscriptionId, now)
+BillingService --> AppStreamPulse : CancelReceipt(CANCELED, credito)
+AppStreamPulse --> Assinante : comprovante e saldo
+ProductOwner -> AppStreamPulse : confere criterio BDD US-BILL-14
+@enduml

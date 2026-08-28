@@ -1,32 +1,27 @@
-flowchart TB
-    subgraph Mudanca["Alteracao sob teste"]
-        REF["Refatoracao de AdaptiveBitrateController.chooseLadder()"]
-    end
+classDiagram
+    class AdaptiveBitrateController {
+        +chooseLadder(rttMs, throughputBps, bufferMs) Rung
+    }
 
-    subgraph Driver["Driver da suite de regressao"]
-        RG["RegressionSuite\npytest -m regression"]
-    end
+    class DrmLicenseService {
+        <<service>>
+        +issueLicense(kid, jwt) License
+    }
 
-    subgraph Reais["Modulos reais potencialmente colaterais"]
-        ABR["AdaptiveBitrateController"]
-        DRM["DrmLicenseService.issueLicense(kid, jwt)"]
-        BILL["BillingService.accountPlaybackSecond(userId, bitrate)"]
-        PLAY["PlayerStreamer.pumpBuffer()"]
-    end
+    class BillingService {
+        <<service>>
+        +accountPlaybackSecond(userId, bitrate) void
+    }
 
-    subgraph Baseline["Oraculo de nao-regressao"]
-        GOLD["Golden files: ladder.json, drm.kid, billing.csv"]
-    end
+    class RegressionSuite {
+        <<Driver>>
+        +test_ladder_compativel_com_baseline() void
+        +test_drm_kid_inalterado() void
+        +test_faturamento_inalterado() void
+    }
 
-    REF --> ABR
-    RG --> ABR
-    RG --> DRM
-    RG --> BILL
-    RG --> PLAY
-    ABR --> PLAY
-    PLAY --> DRM
-    PLAY --> BILL
-    RG --> GOLD
-    DRM -->|licenca e KID inalterados| GOLD
-    BILL -->|segundos faturados inalterados| GOLD
-    ABR -->|ladder equivalente para o mesmo RTT| GOLD
+    RegressionSuite --> AdaptiveBitrateController : reexecuta
+    RegressionSuite --> DrmLicenseService : reexecuta
+    RegressionSuite --> BillingService : reexecuta
+    AdaptiveBitrateController ..> DrmLicenseService : efeito colateral
+    AdaptiveBitrateController ..> BillingService : efeito colateral

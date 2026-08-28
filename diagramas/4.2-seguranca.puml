@@ -1,0 +1,20 @@
+@startuml
+actor Atacante
+participant ApiGateway
+participant TokenJwtValidator
+participant CatalogService
+
+Atacante -> ApiGateway : GET /catalog com JWT expirado
+ApiGateway -> TokenJwtValidator : validate(token)
+TokenJwtValidator --> ApiGateway : TokenExpiredException
+ApiGateway --> Atacante : HTTP 401
+
+Atacante -> ApiGateway : GET /admin com JWT manipulado
+ApiGateway -> TokenJwtValidator : validate(token)
+TokenJwtValidator --> ApiGateway : InvalidSignatureException
+ApiGateway --> Atacante : HTTP 401
+
+Atacante -> ApiGateway : GET /catalog/search?q=payload
+ApiGateway -> CatalogService : search(q sanitizado)
+CatalogService --> Atacante : lista vazia ou HTTP 400
+@enduml

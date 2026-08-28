@@ -1,34 +1,22 @@
-sequenceDiagram
-    autonumber
-    actor QA as Engenheiro QA
+classDiagram
+    class PlaybackOrchestrator {
+        -ICdnEdgeRouter roteadorBorda
+        +PlaybackOrchestrator(roteador)
+        +startPlayback(userId, assetId) PlaybackTicket
+    }
 
-    box rgb(219,234,254) Modulos reais - nivel superior
-        participant PO as PlaybackOrchestrator
-        participant PM as PlaybackSession
-    end
+    class ICdnEdgeRouter {
+        <<interface>>
+        +resolveManifest(assetId, region) ManifestDto
+    }
 
-    box rgb(255,237,213) Stub da dependencia inferior
-        participant ST as CdnEdgeRouterStub
-    end
+    class CdnEdgeRouterStub {
+        <<Stub>>
+        -Boolean respostaPadrao
+        +resolveManifest(assetId, region) ManifestDto
+        +simular404() void
+        +simularTimeout() void
+    }
 
-    box rgb(229,231,235) Fora desta rodada top-down
-        participant CDN as CdnEdgeRouter real
-    end
-
-    Note over ST: Implementa ICdnEdgeRouter
-    Note over CDN: Nao acessado - substituido pelo stub
-
-    QA->>PO: startPlayback(userId, assetId, device)
-    PO->>PM: createSession(assetId, device)
-    PO->>ST: resolveManifest(assetId, region) via ICdnEdgeRouter
-
-    alt manifesto encontrado com latencia de borda 180ms
-        ST-->>PO: ManifestDto(url .m3u8, ttl, edgePop)
-        PO-->>QA: PlaybackTicket HTTP 200
-    else titulo inexistente
-        ST-->>PO: CdnNotFoundException
-        PO-->>QA: PlaybackError HTTP 404
-    else timeout de borda
-        ST-->>PO: CdnTimeoutException
-        PO-->>QA: PlaybackError HTTP 503 retryable
-    end
+    PlaybackOrchestrator --> ICdnEdgeRouter : utiliza
+    CdnEdgeRouterStub ..|> ICdnEdgeRouter : implementa

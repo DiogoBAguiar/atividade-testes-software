@@ -1,40 +1,28 @@
-flowchart LR
-    subgraph Ator["Ator / ambiente CI"]
-        DEV["Commit no Git"]
-        GHA["GitHub Actions\njob smoke"]
-    end
+classDiagram
+    class SmokeSuite {
+        <<Driver de Fumaca>>
+        +test_login_retorna_200() void
+        +test_manifesto_m3u8_retorna_200() void
+        +test_health_retorna_200() void
+    }
 
-    subgraph Driver["Driver de fumaca"]
-        SM["SmokeSuite\npytest -m smoke --maxfail=1"]
-    end
+    class ApiGateway {
+        <<service>>
+        +login(credenciais) JwtToken
+        +obterManifesto(assetId) String
+        +health() Status
+    }
 
-    subgraph Reais["Rotas vitais do build - modulos reais"]
-        L["POST /auth/login"]
-        M["GET /playback/{id}/master.m3u8"]
-        H["GET /health"]
-    end
+    class AuthService {
+        <<service>>
+        +autenticar(credenciais) JwtToken
+    }
 
-    subgraph Ambiente["Ambiente efemero do pipeline"]
-        API["ApiGateway + Compose"]
-        DB[("Metadata de homologacao")]
-    end
+    class PlaybackOrchestrator {
+        <<service>>
+        +obterMasterM3u8(assetId) String
+    }
 
-    subgraph Decisao["Portao de qualidade"]
-        OK["Build verde - segue testes profundos"]
-        KO["Build vermelho - pipeline aborta"]
-    end
-
-    DEV --> GHA --> SM
-    SM --> L
-    SM --> M
-    SM --> H
-    L --> API
-    M --> API
-    H --> API
-    API --> DB
-    L -->|HTTP 200 + JWT| OK
-    M -->|HTTP 200 + EXT-X-STREAM-INF| OK
-    H -->|HTTP 200| OK
-    L -->|5xx / timeout / 401 inesperado| KO
-    M -->|404 / 5xx / manifesto vazio| KO
-    H -->|nao-200| KO
+    SmokeSuite --> ApiGateway : rotas vitais
+    ApiGateway --> AuthService : login
+    ApiGateway --> PlaybackOrchestrator : manifesto

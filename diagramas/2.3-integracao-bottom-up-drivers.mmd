@@ -1,30 +1,19 @@
-sequenceDiagram
-    autonumber
+classDiagram
+    class VideoSegmentDecoder {
+        +decode(bytes, codec, pts) DecodeResult
+    }
 
-    box rgb(254,243,199) Driver - substitui player e UI inexistentes
-        participant DR as DecoderTestDriver
-    end
+    class DecoderTestDriver {
+        <<Driver>>
+        +exercitarSegmentoValido() DecodeResult
+        +exercitarNalCorrompido() void
+        +exercitarCodecIncompativel() void
+    }
 
-    box rgb(219,234,254) Modulo real de baixo nivel
-        participant DEC as VideoSegmentDecoder
-        participant BUF as FrameBuffer
-    end
+    class PlayerStreamer {
+        <<ainda nao construido>>
+        +pumpBuffer() void
+    }
 
-    box rgb(229,231,235) Ainda nao construidos
-        participant PL as PlayerStreamer
-        participant UI as PlayerUiController
-    end
-
-    Note over PL,UI: Fora do escopo desta rodada bottom-up
-
-    DR->>DEC: decode(segmentBytes, codec=H264, ptsBase)
-    DEC->>BUF: push(Frame)
-    BUF-->>DEC: occupancy
-    DEC-->>DR: DecodeResult(frames, ptsOut, isKeyFrame)
-    DR->>DR: assert pts monotonicamente crescente
-
-    DR->>DEC: decode(segmentBytesCorrompidos, codec=H264, ptsBase)
-    DEC-->>DR: DecodeException(CORRUPT_NAL)
-
-    DR->>DEC: decode(segmentHevcEmPerfilH264)
-    DEC-->>DR: DecodeException(CODEC_MISMATCH)
+    DecoderTestDriver --> VideoSegmentDecoder : aciona
+    PlayerStreamer ..> VideoSegmentDecoder : consumira no futuro

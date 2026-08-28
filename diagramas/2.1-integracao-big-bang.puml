@@ -1,0 +1,32 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class BigBangHarness <<Driver>> {
+  + startE2EPlayback(userId: String, assetId: String): void
+}
+
+class AuthService <<service>> {
+  + validateSession(jwt: String): Boolean
+}
+
+class CatalogService <<service>> {
+  + getTitle(assetId: String): Title
+}
+
+class PlayerStreamer <<service>> {
+  + openManifest(assetId: String): String
+}
+
+class BillingService <<service>> {
+  + assertEntitlement(userId: String, assetId: String): Boolean
+}
+
+BigBangHarness --> AuthService : instancia
+BigBangHarness --> CatalogService : instancia
+BigBangHarness --> PlayerStreamer : instancia
+BigBangHarness --> BillingService : instancia
+PlayerStreamer --> AuthService : usa
+PlayerStreamer --> CatalogService : usa
+PlayerStreamer --> BillingService : usa
+AuthService --> BillingService : usa
+@enduml

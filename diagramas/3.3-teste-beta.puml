@@ -1,0 +1,25 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class UsuarioFinal <<ator>> {
+  + usarAppNoProprioDispositivo(): void
+}
+
+class AppBeta {
+  + reproduzir(): void
+  + enviarTelemetria(): void
+}
+
+class ApiGateway <<service>> {
+  + rotearCanario(): void
+}
+
+class TelemetriaCampo <<ambiente>> {
+  + registrarCrash(evento: Evento): void
+  + registrarQoE(metricas: QoE): void
+}
+
+UsuarioFinal --> AppBeta : Android / iOS / SmartTV
+AppBeta --> ApiGateway : producao restrita
+AppBeta --> TelemetriaCampo : falhas reais
+@enduml
