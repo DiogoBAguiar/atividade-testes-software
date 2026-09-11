@@ -1,27 +1,18 @@
 classDiagram
-    class EngenheiroInterno {
+    class TestadorInterno {
         <<ator>>
-        +executarSessaoWatchParty() void
+        +executarRoteiroDeProspeccao()
+        +registrarProblema()
+    }
+    class AmbienteDeHomologacao {
+        +abrirFila()
+        +registrarTentativa()
+        +consultarHistorico()
+    }
+    class ListaDeProblemas {
+        +anotarPasso()
+        +anotarResultadoObservado()
     }
 
-    class WatchPartyService {
-        <<service>>
-        +criarSala(hostId, assetId) Room
-        +entrarComCodigo(codigo) void
-        +syncPlayhead(roomId, positionMs) void
-    }
-
-    class WatchPartySignaling {
-        <<service>>
-        +enviarEvento(roomId, evento) void
-    }
-
-    class AmbienteHomologacao {
-        <<ambiente>>
-        +CatalogService catalogo
-        +AuthService auth
-    }
-
-    EngenheiroInterno --> WatchPartyService : usa em staging
-    WatchPartyService --> WatchPartySignaling : utiliza
-    WatchPartyService --> AmbienteHomologacao : executa em
+    TestadorInterno --> AmbienteDeHomologacao : utiliza
+    TestadorInterno --> ListaDeProblemas : registra falhas

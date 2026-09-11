@@ -1,26 +1,26 @@
 @startuml
 skinparam classAttributeIconSize 0
 
-class GeradorEstresse <<Driver de Carga>> {
-  + simularEstreia(vu: int): void
+class GeradorDeCargaCrescente {
+  + aumentarOperadoresSimultaneos(): void
+  + registrarTentativasEmContatosDiferentes(): void
+}
+class ApiDeAtendimentos {
+  + registrarAtendimento(): void
+}
+class ServicoDeAtendimentos {
+  + processarAtendimento(): void
+}
+class BancoDeDados {
+  + gravarHistorico(): void
+}
+class ColetorDeFalhas {
+  + contarErros(): void
+  + identificarLimite(): void
 }
 
-class ApiGateway <<service>> {
-  + receberRequisicao(): HttpResponse
-}
-
-class CircuitBreaker {
-  + permitir(): Boolean
-  + abrir(): void
-  + rejeitarRapido(): HttpResponse
-}
-
-class PlaybackOrchestrator <<service>> {
-  + startPlayback(userId: String, assetId: String): PlaybackTicket
-}
-
-GeradorEstresse --> ApiGateway : 500000 VU
-ApiGateway --> CircuitBreaker : consulta
-CircuitBreaker --> PlaybackOrchestrator : se fechado
-CircuitBreaker --> GeradorEstresse : 429 ou 503 se aberto
+GeradorDeCargaCrescente --> ApiDeAtendimentos : aumenta a carga ate o limite
+ApiDeAtendimentos --> ServicoDeAtendimentos : processa
+ServicoDeAtendimentos --> BancoDeDados : grava
+GeradorDeCargaCrescente --> ColetorDeFalhas : envia resultados
 @enduml

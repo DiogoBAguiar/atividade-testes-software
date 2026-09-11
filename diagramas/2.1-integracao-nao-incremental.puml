@@ -1,0 +1,28 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class TesteCompletoDeIntegracao {
+  + registrarTentativaCompleta(): void
+}
+class TelaDeAtendimento {
+  + concluirTentativa(): void
+}
+class ApiDeAtendimentos {
+  + registrarAtendimento(): void
+}
+class ServicoDeAtendimentos {
+  + processarAtendimento(): void
+}
+class RepositorioDeAtendimentos {
+  + criarAtendimento(): void
+}
+class BancoDeDados {
+  + gravarHistorico(): void
+}
+
+TesteCompletoDeIntegracao --> TelaDeAtendimento : inicia
+TelaDeAtendimento --> ApiDeAtendimentos : envia
+ApiDeAtendimentos --> ServicoDeAtendimentos : chama
+ServicoDeAtendimentos --> RepositorioDeAtendimentos : usa
+RepositorioDeAtendimentos --> BancoDeDados : grava
+@enduml

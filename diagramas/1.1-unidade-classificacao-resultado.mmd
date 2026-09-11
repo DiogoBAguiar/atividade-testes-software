@@ -1,0 +1,11 @@
+classDiagram
+    class ClassificadorDeResultado {
+        +classificarResultado(resultado) classificacao
+    }
+    class TesteDoClassificador {
+        +atendeuGeraContatoEfetivo()
+        +naoAtendeuGeraAusenciaDeResposta()
+        +numeroIncorretoGeraDadoInvalido()
+    }
+
+    TesteDoClassificador --> ClassificadorDeResultado : testa

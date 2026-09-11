@@ -1,28 +1,22 @@
-classDiagram
-    class SmokeSuite {
-        <<Driver de Fumaca>>
-        +test_login_retorna_200() void
-        +test_manifesto_m3u8_retorna_200() void
-        +test_health_retorna_200() void
-    }
+sequenceDiagram
+    actor Testador
+    participant Tela as Tela de Atendimento
+    participant Acesso as Controle de Acesso
+    participant Fila as Fila de Prospeccao
+    participant Api as API de Atendimentos
+    participant Historico as Historico de Tentativas
 
-    class ApiGateway {
-        <<service>>
-        +login(credenciais) JwtToken
-        +obterManifesto(assetId) String
-        +health() Status
-    }
+    Testador->>Tela: entrar com usuario valido
+    Tela->>Acesso: validar credenciais
+    Acesso-->>Tela: acesso permitido
+    Testador->>Tela: solicitar proximo contato
+    Tela->>Fila: pedir reserva
+    Fila-->>Tela: contato reservado
+    Testador->>Tela: informar telefone e NAO_ATENDEU
+    Tela->>Api: POST pessoas id atendimento
+    Api->>Historico: criar nova tentativa
+    Historico-->>Api: gravacao confirmada
+    Api-->>Tela: sucesso
+    Tela-->>Testador: tentativa registrada
 
-    class AuthService {
-        <<service>>
-        +autenticar(credenciais) JwtToken
-    }
-
-    class PlaybackOrchestrator {
-        <<service>>
-        +obterMasterM3u8(assetId) String
-    }
-
-    SmokeSuite --> ApiGateway : rotas vitais
-    ApiGateway --> AuthService : login
-    ApiGateway --> PlaybackOrchestrator : manifesto
+    Note over Testador,Historico: Se uma etapa falhar, o teste de fumaca e interrompido

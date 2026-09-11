@@ -1,0 +1,15 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class ClassificadorDeResultado {
+  + classificarResultado(resultado: String): String
+}
+
+class TesteDoClassificador <<Teste de Unidade>> {
+  + atendeuGeraContatoEfetivo(): void
+  + naoAtendeuGeraAusenciaDeResposta(): void
+  + numeroIncorretoGeraDadoInvalido(): void
+}
+
+TesteDoClassificador --> ClassificadorDeResultado : testa
+@enduml

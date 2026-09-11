@@ -1,20 +1,17 @@
 @startuml
-actor Atacante
-participant ApiGateway
-participant TokenJwtValidator
-participant CatalogService
+actor PessoaSemAcesso
+actor Operador
+participant "API de Atendimentos" as Api
+participant "Controle de Acesso" as Autorizacao
+participant "Servico de Atendimentos" as Servico
 
-Atacante -> ApiGateway : GET /catalog com JWT expirado
-ApiGateway -> TokenJwtValidator : validate(token)
-TokenJwtValidator --> ApiGateway : TokenExpiredException
-ApiGateway --> Atacante : HTTP 401
+PessoaSemAcesso -> Api : tenta registrar uma tentativa
+Api -> Autorizacao : verifica usuario e papel
+Autorizacao --> Api : acesso negado
+Api --> PessoaSemAcesso : operacao recusada
 
-Atacante -> ApiGateway : GET /admin com JWT manipulado
-ApiGateway -> TokenJwtValidator : validate(token)
-TokenJwtValidator --> ApiGateway : InvalidSignatureException
-ApiGateway --> Atacante : HTTP 401
-
-Atacante -> ApiGateway : GET /catalog/search?q=payload
-ApiGateway -> CatalogService : search(q sanitizado)
-CatalogService --> Atacante : lista vazia ou HTTP 400
+Operador -> Api : registra contato reservado para outro operador
+Api -> Servico : valida a reserva
+Servico --> Api : contato nao esta reservado para ele
+Api --> Operador : operacao recusada sem gravacao
 @enduml

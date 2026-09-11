@@ -1,27 +1,25 @@
 @startuml
-skinparam classAttributeIconSize 0
+actor Testador
+participant "Tela de Atendimento" as Tela
+participant "Controle de Acesso" as Acesso
+participant "Fila de Prospeccao" as Fila
+participant "API de Atendimentos" as Api
+participant "Historico de Tentativas" as Historico
 
-class SmokeSuite <<Driver de Fumaca>> {
-  + test_login_retorna_200(): void
-  + test_manifesto_m3u8_retorna_200(): void
-  + test_health_retorna_200(): void
-}
+Testador -> Tela : entrar com usuario valido
+Tela -> Acesso : validar credenciais
+Acesso --> Tela : acesso permitido
+Testador -> Tela : solicitar proximo contato
+Tela -> Fila : pedir reserva
+Fila --> Tela : contato reservado
+Testador -> Tela : informar telefone e NAO_ATENDEU
+Tela -> Api : POST pessoas id atendimento
+Api -> Historico : criar nova tentativa
+Historico --> Api : gravacao confirmada
+Api --> Tela : sucesso
+Tela --> Testador : tentativa registrada
 
-class ApiGateway <<service>> {
-  + login(credenciais: Credenciais): JwtToken
-  + obterManifesto(assetId: String): String
-  + health(): Status
-}
-
-class AuthService <<service>> {
-  + autenticar(credenciais: Credenciais): JwtToken
-}
-
-class PlaybackOrchestrator <<service>> {
-  + obterMasterM3u8(assetId: String): String
-}
-
-SmokeSuite --> ApiGateway : rotas vitais
-ApiGateway --> AuthService : login
-ApiGateway --> PlaybackOrchestrator : manifesto
+note over Testador, Historico
+  Se uma etapa falhar, o teste de fumaca e interrompido.
+end note
 @enduml

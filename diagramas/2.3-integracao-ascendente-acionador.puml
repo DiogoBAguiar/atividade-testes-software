@@ -1,0 +1,22 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class AcionadorDeTeste <<Acionador>> {
+  + gravarTentativaValida(): void
+  + tentarGravarContatoInexistente(): void
+}
+class RepositorioDeAtendimentos {
+  + criarAtendimento(dados: DadosDaTentativa): void
+}
+class BancoDeDadosDeTeste {
+  + gravarHistorico(): void
+  + consultarHistorico(): void
+}
+class ServicoDeAtendimentos <<Nao utilizado neste teste>> {
+  + processarAtendimento(): void
+}
+
+AcionadorDeTeste --> RepositorioDeAtendimentos : aciona
+RepositorioDeAtendimentos --> BancoDeDadosDeTeste : grava e consulta
+ServicoDeAtendimentos ..> RepositorioDeAtendimentos : usara no fluxo completo
+@enduml

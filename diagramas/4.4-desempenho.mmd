@@ -1,24 +1,20 @@
 classDiagram
-    class GeradorCargaEstavel {
-        <<Driver de Carga>>
-        +executarPerfilNominal() void
+    class GeradorDeCargaNormal {
+        +manterCargaEstavel()
+        +registrarTentativas()
+    }
+    class ApiDeAtendimentos {
+        +registrarAtendimento()
+    }
+    class BancoDeDados {
+        +gravarHistorico()
+    }
+    class MedidorDeDesempenho {
+        +medirTempoDeResposta()
+        +medirOperacoesPorSegundo()
+        +medirTaxaDeErro()
     }
 
-    class ApiGateway {
-        <<service>>
-        +obterManifesto(assetId) String
-    }
-
-    class ServicoManifesto {
-        <<service>>
-        +montarMasterM3u8(assetId) String
-    }
-
-    class CdnEntregaChunks {
-        <<service>>
-        +entregarChunk(url) byte[]
-    }
-
-    GeradorCargaEstavel --> ApiGateway : 80 por cento da capacidade
-    ApiGateway --> ServicoManifesto : p95 p99
-    GeradorCargaEstavel --> CdnEntregaChunks : vazao de chunks
+    GeradorDeCargaNormal --> ApiDeAtendimentos : envia carga esperada
+    ApiDeAtendimentos --> BancoDeDados : grava
+    GeradorDeCargaNormal --> MedidorDeDesempenho : fornece tempos e resultados

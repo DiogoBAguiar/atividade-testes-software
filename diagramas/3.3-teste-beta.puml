@@ -1,25 +1,21 @@
 @startuml
 skinparam classAttributeIconSize 0
 
-class UsuarioFinal <<ator>> {
-  + usarAppNoProprioDispositivo(): void
+class OperadorConvidado <<Ator>> {
+  + usarFilaReal(): void
+  + registrarTentativaReal(): void
+  + enviarRelato(): void
+}
+class VersaoBeta {
+  + reservarContato(): void
+  + registrarTentativa(): void
+  + mostrarConfirmacao(): void
+}
+class ColetaDeRelatos {
+  + guardarProblema(): void
+  + guardarSugestao(): void
 }
 
-class AppBeta {
-  + reproduzir(): void
-  + enviarTelemetria(): void
-}
-
-class ApiGateway <<service>> {
-  + rotearCanario(): void
-}
-
-class TelemetriaCampo <<ambiente>> {
-  + registrarCrash(evento: Evento): void
-  + registrarQoE(metricas: QoE): void
-}
-
-UsuarioFinal --> AppBeta : Android / iOS / SmartTV
-AppBeta --> ApiGateway : producao restrita
-AppBeta --> TelemetriaCampo : falhas reais
+OperadorConvidado --> VersaoBeta : utiliza
+OperadorConvidado --> ColetaDeRelatos : informa experiencia
 @enduml

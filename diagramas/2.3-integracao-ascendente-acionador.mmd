@@ -1,0 +1,21 @@
+classDiagram
+    class AcionadorDeTeste {
+        <<acionador>>
+        +gravarTentativaValida()
+        +tentarGravarContatoInexistente()
+    }
+    class RepositorioDeAtendimentos {
+        +criarAtendimento(dados)
+    }
+    class BancoDeDadosDeTeste {
+        +gravarHistorico()
+        +consultarHistorico()
+    }
+    class ServicoDeAtendimentos {
+        <<nao utilizado neste teste>>
+        +processarAtendimento()
+    }
+
+    AcionadorDeTeste --> RepositorioDeAtendimentos : aciona
+    RepositorioDeAtendimentos --> BancoDeDadosDeTeste : grava e consulta
+    ServicoDeAtendimentos ..> RepositorioDeAtendimentos : usara no fluxo completo

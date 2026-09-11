@@ -1,0 +1,33 @@
+sequenceDiagram
+    actor Operador
+    actor Avaliador
+    participant Tela as Tela de Atendimento
+    participant Api as API de Atendimentos
+    participant Servico as Servico de Atendimentos
+    participant Repositorio as Repositorio de Atendimentos
+    participant Banco as Banco de Dados
+
+    Note over Operador,Banco: Precondicao: contato reservado e tentativa anterior no historico
+    Operador->>Tela: abre contato reservado
+    Operador->>Tela: marca telefone e informa NAO_ATENDEU
+    Operador->>Tela: conclui sem desfecho
+    Tela->>Api: envia a tentativa
+    Api->>Servico: processarAtendimento
+    Servico->>Servico: validar reserva, canal e resultado
+
+    alt Dados validos e contato reservado para o operador
+        Servico->>Repositorio: criarAtendimento
+        Repositorio->>Banco: inserir nova tentativa
+        Banco-->>Repositorio: registro com autor e instante
+        Servico->>Repositorio: devolver contato para a fila
+        Repositorio->>Banco: liberar reserva sem apagar o historico
+        Servico-->>Api: atendimento concluido
+        Api-->>Tela: sucesso
+        Tela-->>Operador: tentativa registrada e contato devolvido
+        Avaliador->>Tela: confere novo registro e tentativa anterior preservada
+    else Canal sem resultado ou contato reservado para outra pessoa
+        Servico-->>Api: erro de validacao
+        Api-->>Tela: operacao recusada
+        Tela-->>Operador: mostra erro e mantem os campos
+        Avaliador->>Tela: confere que nenhum registro foi criado
+    end

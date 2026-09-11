@@ -1,19 +1,16 @@
 sequenceDiagram
-    actor Atacante
-    participant GW as ApiGateway
-    participant JWT as TokenJwtValidator
-    participant CAT as CatalogService
+    actor PessoaSemAcesso
+    actor Operador
+    participant Api as API de Atendimentos
+    participant Autorizacao as Controle de Acesso
+    participant Servico as Servico de Atendimentos
 
-    Atacante->>GW: GET /catalog com JWT expirado
-    GW->>JWT: validate(token)
-    JWT-->>GW: TokenExpiredException
-    GW-->>Atacante: HTTP 401
+    PessoaSemAcesso->>Api: tenta registrar uma tentativa
+    Api->>Autorizacao: verifica usuario e papel
+    Autorizacao-->>Api: acesso negado
+    Api-->>PessoaSemAcesso: operacao recusada
 
-    Atacante->>GW: GET /admin com JWT manipulado
-    GW->>JWT: validate(token)
-    JWT-->>GW: InvalidSignatureException
-    GW-->>Atacante: HTTP 401
-
-    Atacante->>GW: GET /catalog/search?q=payload
-    GW->>CAT: search(q sanitizado)
-    CAT-->>Atacante: lista vazia ou HTTP 400
+    Operador->>Api: registra contato reservado para outro operador
+    Api->>Servico: valida a reserva
+    Servico-->>Api: contato nao esta reservado para ele
+    Api-->>Operador: operacao recusada sem gravacao

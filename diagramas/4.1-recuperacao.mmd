@@ -1,17 +1,18 @@
 sequenceDiagram
-    actor Cliente
-    participant App as PlayerStreamer
-    participant Orq as PlaybackOrchestrator
-    participant Primario as RedisPrimario
-    participant Replica as RedisReplica
-    participant Inj as InjecaoDeFalha
+    actor Operador
+    participant Tela as Tela de Atendimento
+    participant Api as API de Atendimentos
+    participant Banco as Banco de Dados
+    participant Falha as Simulador de Falha
 
-    Cliente->>App: reproduzir titulo
-    App->>Orq: heartbeat(positionMs)
-    Orq->>Primario: saveCheckpoint(sessionId, positionMs)
-    Inj->>Primario: crash do no primario
-    Primario--xOrq: conexao perdida
-    Orq->>Replica: failover e GET checkpoint
-    Replica-->>Orq: positionMs restaurado
-    Orq-->>App: resumeFrom(positionMs)
-    App-->>Cliente: playback continua
+    Operador->>Tela: preenche canal, resultado e observacao
+    Tela->>Api: envia tentativa
+    Api->>Banco: inicia gravacao
+    Falha->>Banco: interrompe conexao antes do commit
+    Banco--xApi: gravacao falha
+    Api-->>Tela: informa erro
+    Tela-->>Operador: mantem os campos preenchidos
+    Operador->>Tela: tenta novamente apos a recuperacao
+    Tela->>Api: reenvia tentativa
+    Api->>Banco: grava em nova operacao
+    Banco-->>Tela: confirma sucesso

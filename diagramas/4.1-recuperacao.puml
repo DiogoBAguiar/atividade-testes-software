@@ -1,18 +1,19 @@
 @startuml
-actor Cliente
-participant PlayerStreamer
-participant PlaybackOrchestrator
-participant RedisPrimario
-participant RedisReplica
-participant InjecaoDeFalha
+actor Operador
+participant "Tela de Atendimento" as Tela
+participant "API de Atendimentos" as Api
+participant "Banco de Dados" as Banco
+participant "Simulador de Falha" as Falha
 
-Cliente -> PlayerStreamer : reproduzir titulo
-PlayerStreamer -> PlaybackOrchestrator : heartbeat(positionMs)
-PlaybackOrchestrator -> RedisPrimario : saveCheckpoint(sessionId, positionMs)
-InjecaoDeFalha -> RedisPrimario : crash do no primario
-RedisPrimario --x PlaybackOrchestrator : conexao perdida
-PlaybackOrchestrator -> RedisReplica : failover e GET checkpoint
-RedisReplica --> PlaybackOrchestrator : positionMs restaurado
-PlaybackOrchestrator --> PlayerStreamer : resumeFrom(positionMs)
-PlayerStreamer --> Cliente : playback continua
+Operador -> Tela : preenche canal, resultado e observacao
+Tela -> Api : envia tentativa
+Api -> Banco : inicia gravacao
+Falha -> Banco : interrompe conexao antes do commit
+Banco --x Api : gravacao falha
+Api --> Tela : informa erro
+Tela --> Operador : mantem os campos preenchidos
+Operador -> Tela : tenta novamente apos a recuperacao
+Tela -> Api : reenvia tentativa
+Api -> Banco : grava em nova operacao
+Banco --> Tela : confirma sucesso
 @enduml

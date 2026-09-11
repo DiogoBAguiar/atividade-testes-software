@@ -1,0 +1,25 @@
+classDiagram
+    class TesteCompletoDeIntegracao {
+        +registrarTentativaCompleta()
+    }
+    class TelaDeAtendimento {
+        +concluirTentativa()
+    }
+    class ApiDeAtendimentos {
+        +registrarAtendimento()
+    }
+    class ServicoDeAtendimentos {
+        +processarAtendimento()
+    }
+    class RepositorioDeAtendimentos {
+        +criarAtendimento()
+    }
+    class BancoDeDados {
+        +gravarHistorico()
+    }
+
+    TesteCompletoDeIntegracao --> TelaDeAtendimento : inicia
+    TelaDeAtendimento --> ApiDeAtendimentos : envia
+    ApiDeAtendimentos --> ServicoDeAtendimentos : chama
+    ServicoDeAtendimentos --> RepositorioDeAtendimentos : usa
+    RepositorioDeAtendimentos --> BancoDeDados : grava

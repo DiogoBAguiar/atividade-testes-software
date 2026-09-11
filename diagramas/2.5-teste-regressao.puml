@@ -1,27 +1,23 @@
 @startuml
 skinparam classAttributeIconSize 0
 
-class AdaptiveBitrateController {
-  + chooseLadder(rttMs: int, throughputBps: long, bufferMs: int): Rung
+class ConjuntoDeRegressao {
+  + mantemClassificacaoDoResultado(): void
+  + mantemObrigacaoDeReserva(): void
+  + mantemHistoricoSemSobrescrita(): void
+}
+class ClassificadorDeResultado {
+  + classificarResultado(resultado: String): String
+}
+class ServicoDeAtendimentos {
+  + validarAtendimentoAtual(): void
+  + processarAtendimento(): void
+}
+class RepositorioDeAtendimentos {
+  + criarAtendimento(): void
 }
 
-class DrmLicenseService <<service>> {
-  + issueLicense(kid: String, jwt: String): License
-}
-
-class BillingService <<service>> {
-  + accountPlaybackSecond(userId: String, bitrate: int): void
-}
-
-class RegressionSuite <<Driver>> {
-  + test_ladder_compativel_com_baseline(): void
-  + test_drm_kid_inalterado(): void
-  + test_faturamento_inalterado(): void
-}
-
-RegressionSuite --> AdaptiveBitrateController : reexecuta
-RegressionSuite --> DrmLicenseService : reexecuta
-RegressionSuite --> BillingService : reexecuta
-AdaptiveBitrateController ..> DrmLicenseService : efeito colateral
-AdaptiveBitrateController ..> BillingService : efeito colateral
+ConjuntoDeRegressao --> ClassificadorDeResultado : repete testes
+ConjuntoDeRegressao --> ServicoDeAtendimentos : repete testes
+ConjuntoDeRegressao --> RepositorioDeAtendimentos : repete testes
 @enduml

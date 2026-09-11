@@ -1,0 +1,21 @@
+classDiagram
+    class TelaDeAtendimento {
+        +concluirTentativa()
+    }
+    class ServicoDeAtendimentos {
+        +processarAtendimento()
+    }
+    class ContratoDoRepositorio {
+        <<interface>>
+        +criarAtendimento(dados)
+    }
+    class RepositorioSimulado {
+        <<simulador>>
+        +criarAtendimento(dados)
+        +simularSucesso()
+        +simularFalha()
+    }
+
+    TelaDeAtendimento --> ServicoDeAtendimentos : envia dados
+    ServicoDeAtendimentos --> ContratoDoRepositorio : utiliza
+    RepositorioSimulado ..|> ContratoDoRepositorio : substitui o repositorio real
