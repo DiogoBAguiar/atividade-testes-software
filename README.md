@@ -77,15 +77,18 @@ O teste de unidade verifica uma função pequena e isolada. Aqui, a função `cl
 ```mermaid
 classDiagram
     class ClassificadorDeResultado {
-        +classificarResultado(resultado) classificacao
-    }
-    class TesteDoClassificador {
-        +atendeuGeraContatoEfetivo()
-        +naoAtendeuGeraAusenciaDeResposta()
-        +numeroIncorretoGeraDadoInvalido()
+        +classificarResultado(resultado: String) Classificacao
     }
 
-    TesteDoClassificador --> ClassificadorDeResultado : testa
+    class TesteDoClassificador {
+        <<test>>
+        +atendeuGeraContatoEfetivo() void
+        +naoAtendeuGeraAusenciaDeResposta() void
+        +numeroIncorretoGeraDadoInvalido() void
+    }
+
+    TesteDoClassificador ..> ClassificadorDeResultado : testa
+
 ```
 
 Casos simples:
